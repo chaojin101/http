@@ -6,13 +6,15 @@ import (
 	"net/http"
 )
 
-type MultipartFile struct {
+type File struct {
 	Fieldname string
 	Filename  string
 	Data      []byte
 }
 
-func PostMultipart(url string, files ...MultipartFile) (*http.Response, error) {
+// PostFiles posts files to url.
+// The Content-Type header is set to multipart/form-data.
+func PostFiles(url string, files ...File) (*http.Response, error) {
 	reqBodyBuf := new(bytes.Buffer)
 	multipart := multipart.NewWriter(reqBodyBuf)
 
