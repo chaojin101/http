@@ -11,15 +11,17 @@ go get https://github.com/chaojin101/http
 short example:
 
 ```go
-files := []http.File{
-    {
-        Fieldname: "file",
-        Filename:  "hello.txt",
-        Data:      []byte("Hello, World!"),
+fields := []http.MultipartField{
+  {
+    Fieldname: "img",
+    File: http.File{
+      Name: "1.jpg",
     },
+    Data: []byte("hello world"),
+  },
 }
 url := "https://httpbin.org/post"
-resp, err := http.PostFiles(url, files)
+resp, err := http.PostMultipart(url, fields...)
 ```
 
 short output:
@@ -27,7 +29,7 @@ short output:
 ```json
 {
   "files": {
-    "file": "Hello, World!"
+    "img": "hello world"
   },
   "headers": {
     "Content-Type": "multipart/form-data; boundary=54667f9c32b0610e8fd32ffa4db11783c8a34820c6a2a81cd31e48e643db"
@@ -48,26 +50,32 @@ import (
 )
 
 func main() {
-	files := []http.File{
+	fields := []http.MultipartField{
 		{
-			Fieldname: "file",
-			Filename:  "hello.txt",
-			Data:      []byte("Hello, World!"),
+			Fieldname: "img",
+			File: http.File{
+				Name: "1.jpg",
+			},
+			Data: []byte("hello world"),
 		},
 	}
 	url := "https://httpbin.org/post"
-	resp, err := http.PostFiles(url, files...)
+	resp, err := http.PostMultipart(url, fields...)
 	if err != nil {
 		panic(err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(resp.Body)
 
-	data, err := io.ReadAll(resp.Body)
+	respBodyData, err := io.ReadAll(resp.Body)
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Println(string(data))
+	fmt.Println(string(respBodyData))
 }
 ```
 
@@ -78,19 +86,19 @@ full output:
   "args": {},
   "data": "",
   "files": {
-    "file": "Hello, World!"
+    "img": "hello world"
   },
   "form": {},
   "headers": {
     "Accept-Encoding": "gzip",
-    "Content-Length": "254",
-    "Content-Type": "multipart/form-data; boundary=54667f9c32b0610e8fd32ffa4db11783c8a34820c6a2a81cd31e48e643db",
+    "Content-Length": "247",
+    "Content-Type": "multipart/form-data; boundary=1805df65e71312c6bb872b2a04a4695877a3b5c5b6963d4348d4fe517b0e",
     "Host": "httpbin.org",
     "User-Agent": "Go-http-client/2.0",
-    "X-Amzn-Trace-Id": "Root=1-64bf407e-2a36af6b2026e4ec21284eb6"
+    "X-Amzn-Trace-Id": "Root=1-64bf7a18-6b7158c06fe32e8e6b13da72"
   },
   "json": null,
-  "origin": "xx.xx.xx.xx",
+  "origin": "xxx.xxx.xxx.xxx",
   "url": "https://httpbin.org/post"
 }
 ```
