@@ -6,7 +6,7 @@ go get https://github.com/chaojin101/http
 
 ## Example
 
-### http.PostFiles
+### http.PostMultipart
 
 short example:
 
